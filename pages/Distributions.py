@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import streamlit as st
 from scipy.stats import norm
 
-# Custom CSS
+st.markdown("<h1 style='text-align: center;'>📊 Probability Distributions</h1>", unsafe_allow_html=True)    # Titles & Styling
 st.markdown("""
     <style>
     .main, .css-18e3th9, .css-1d391kg, .stApp {
@@ -19,18 +19,14 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Load and clean dataset
+# Load data
 df = pd.read_csv("games.csv")
 df.columns = df.columns.str.strip()
 df["Revenue.Estimated"] = pd.to_numeric(df["Revenue.Estimated"], errors="coerce")
 df["Reviews.Total"] = pd.to_numeric(df["Reviews.Total"], errors="coerce")
-df.dropna(subset=["Revenue.Estimated", "Reviews.Total"], inplace=True)
-
-# Log transform
-df["Transformed_Revenue"] = np.log1p(df["Revenue.Estimated"])
-df["Transformed_Reviews"] = np.log1p(df["Reviews.Total"])
-
-st.markdown("<h1 style='text-align: center;'>📊 Probability Distributions</h1>", unsafe_allow_html=True)
+df["Launch.Price"] = pd.to_numeric(df["Launch.Price"], errors="coerce")
+df.dropna(subset=["Revenue.Estimated", "Reviews.Total", "Launch.Price"], inplace=True)
+df["Transformed_Revenue"] = np.log1p(df["Revenue.Estimated"])   # Revenue Estimated (log transformation)
 
 # Reusable plot + stats display
 def plot_and_display_distribution(data, title, label):
@@ -46,11 +42,11 @@ def plot_and_display_distribution(data, title, label):
     st.dataframe(stats_df, use_container_width=True)
     return mean, std
 
-# Revenue distribution
+# Revenue distribution (log-transformed)
 st.subheader("📈 Log-Transformed Revenue Estimated Distribution")
 mean_rev, std_rev = plot_and_display_distribution(df["Transformed_Revenue"],
                                                   "Revenue Distribution with Normal Fit",
-                                                  "Log Revenue")
+                                                  "Log(Revenue Estimated)")
 
 # Revenue probability estimates
 p1 = norm.cdf(np.log1p(1_000_000), loc=mean_rev, scale=std_rev)
@@ -61,8 +57,8 @@ st.write(f"1. **P(Revenue < `$1.00M`)** ≈ {p1:.4f}")
 st.write(f"2. **P(Revenue > `$1.00M`)** ≈ {p2:.4f}")
 st.write(f"3. **P(`$2.50M` < Revenue < `$7.50M`)** ≈ {p3:.4f}")
 
-# Reviews distribution
-st.subheader("📝 Log-Transformed Reviews Total Distribution")
-plot_and_display_distribution(df["Transformed_Reviews"],
-                              "Reviews Distribution with Normal Fit",
-                              "Log Reviews")
+# Launch Price distribution
+st.subheader("💰 Launch Price Distribution")
+mean_price, std_price = plot_and_display_distribution(df["Launch.Price"],
+                                                      "Launch Price Distribution with Normal Fit",
+                                                      "Launch Price ($)")
