@@ -89,6 +89,6 @@ steam-games-analysis/
 
 ## 📜 License
 
-This project is for academic and educational purposes.
+This project is for academic and educational purposes.....
 
 
